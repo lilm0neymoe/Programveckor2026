@@ -7,24 +7,44 @@
 </head>
 <body>
 
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-
+    <!-- Sidebar -->
     <div class="sidebar hidden" id="sidebar">
         <textarea name="Text1" placeholder="Notes..."></textarea>
     </div>
 
+    <!-- Toggle button -->
+    <div class="toggle-container" id="toggleContainer">
+        <button class="toggle-btn" onclick="toggleSidebar()"></button>
+        <img src="Open_Book.jpg" alt="Open Book" class="hover-img">
+    </div>
+
+    <!-- Main content -->
     <div class="main">
         <img src="ChatGPT Image 9 jan. 2026 10_52_51.png" alt="Example Image">
         <div class="input-box">
             <input type="text" placeholder="texxt">
             <button>Skicka</button>
-        </div>
+        </div>  
     </div>
 
     <script>
+        const sidebar = document.getElementById("sidebar");
+        const toggleBtn = document.getElementById("toggleContainer");
+
         function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("hidden");
+            sidebar.classList.toggle("hidden");
+
+            if (sidebar.classList.contains("hidden")) {
+                // Sidebar hidden → move button to top-left
+                toggleBtn.style.left = "12px";
+            } else {
+                // Sidebar visible → move button outside sidebar
+                toggleBtn.style.left = sidebar.offsetWidth + "px"; // 200px
+            }
         }
+
+        // Initialize button position
+        toggleBtn.style.left = "12px";
     </script>
 
 </body>

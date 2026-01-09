@@ -1,0 +1,93 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background-color: #f2f2f2;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    z-index: 10;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+}
+
+.sidebar textarea {
+    flex: 1;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.toggle-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    background-color: #333;
+    color: white;
+    border-radius: 4px;
+    z-index: 20;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 1;
+    transform: translateY(-50px);
+    padding: 0 20px; /* ensures it doesn’t touch the edges on small screens */
+}
+
+.main img {
+    width: 200px;       /* default width */
+    max-width: 80vw;    /* scales down on small screens */
+    height: auto;       /* keeps aspect ratio */
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.input-box {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;   /* allows input/button to stack on small screens */
+    justify-content: center;
+}
+
+input[type="text"] {
+    padding: 10px;
+    width: 250px;
+    max-width: 80vw;   /* scales input on smaller screens */
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+}

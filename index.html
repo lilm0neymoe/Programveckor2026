@@ -3,103 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <title>Layout med Notes</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            height: 100%;
-        }
-
-        .sidebar {
-            width: 200px;
-            background-color: #f2f2f2;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar.hidden {
-            transform: translateX(-100%);
-        }
-
-        .sidebar textarea {
-            margin-top: 30px;
-            width: 100%;
-            height: 300px;
-            padding: 10px;
-            box-sizing: border-box;
-            font-size: 14px;
-            resize: vertical;
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .toggle-btn {
-            position: fixed;
-            top: 12px;
-            left: 12px;
-            width: 32px;
-            height: 32px;
-            font-size: 18px;
-            cursor: pointer;
-            border: none;
-            background-color: #333;
-            color: white;
-            border-radius: 4px;
-        }
-
-        .input-box {
-            display: flex;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            width: 250px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 10px 16px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar hidden" id="sidebar">
+        <textarea placeholder="Notes..."></textarea>
+    </div>
 
-    <div class="container">
-        <div class="sidebar hidden" id="sidebar">
-            <textarea name="Text1" placeholder="Notes..."></textarea>
-        </div>
+    <div class="toggle-container" id="toggleContainer">
+        <button class="toggle-btn" onclick="toggleSidebar()"></button>
+        <img src="Open_Book.jpg" alt="Open Book" class="hover-img">
+    </div>
 
-        <div class="main">
-            <div class="input-box">
-                <input type="text" placeholder="texxt">
-                <button>Skicka</button>
+    <div class="main">
+        <img src="ChatGPT Image 9 jan. 2026 10_52_51.png" alt="Example Image">
+
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Skriv din fråga">
+
+            <div class="dropdown-container">
+                <label for="actionSelect">Välj</label>
+                <select id="actionSelect">
+                    <option value="svar">Svar</option>
+                    <option value="forenkla">Förenkla</option>
+                </select>
             </div>
+
+            <button id="sendBtn">Skicka</button>
         </div>
     </div>
 
     <script>
+        const sidebar = document.getElementById("sidebar");
+        const toggleBtn = document.getElementById("toggleContainer");
+
         function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("hidden");
+            sidebar.classList.toggle("hidden");
+
+            if (sidebar.classList.contains("hidden")) {
+                toggleBtn.style.left = "12px";
+            } else {
+                toggleBtn.style.left = sidebar.offsetWidth + "px";
+            }
         }
+
+        toggleBtn.style.left = "12px";
+
+        const sendBtn = document.getElementById("sendBtn");
+        const textInput = document.getElementById("userInput");
+        const actionSelect = document.getElementById("actionSelect");
+
+        sendBtn.addEventListener("click", () => {
+            const text = textInput.value.trim();
+            const action = actionSelect.value;
+
+            if (!text) {
+                alert("Skriv något först!");
+                return;
+            }
+
+            if (action === "svar") {
+                alert("Svar på: " + text);
+            } else if (action === "forenkla") {
+                alert("Förenklad version av: " + text);
+            }
+
+            textInput.value = "";
+        });
     </script>
 
 </body>

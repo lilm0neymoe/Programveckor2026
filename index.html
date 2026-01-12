@@ -4,25 +4,51 @@
     <meta charset="UTF-8">
     <title>Layout med Notes</title>
     <link rel="stylesheet" href="index.css">
+
+    <style>
+        
+        .input-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .dropdown-container {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+        }
+
+        .dropdown-container select {
+            padding: 4px;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar hidden" id="sidebar">
         <textarea name="Text1" placeholder="Notes..."></textarea>
     </div>
 
-    <!-- Toggle button -->
     <div class="toggle-container" id="toggleContainer">
         <button class="toggle-btn" onclick="toggleSidebar()"></button>
         <img src="Open_Book.jpg" alt="Open Book" class="hover-img">
     </div>
 
-    <!-- Main content -->
     <div class="main">
         <img src="ChatGPT Image 9 jan. 2026 10_52_51.png" alt="Example Image">
+
         <div class="input-box">
             <input type="text" placeholder="texxt">
+
+            <div class="dropdown-container">
+                <label for="actionSelect">Välj</label>
+                <select id="actionSelect">
+                    <option value="svar">Svar</option>
+                    <option value="forenkla">Förenkla</option>
+                </select>
+            </div>
+
             <button>Skicka</button>
         </div>  
     </div>
@@ -35,15 +61,12 @@
             sidebar.classList.toggle("hidden");
 
             if (sidebar.classList.contains("hidden")) {
-                // Sidebar hidden → move button to top-left
                 toggleBtn.style.left = "12px";
             } else {
-                // Sidebar visible → move button outside sidebar
-                toggleBtn.style.left = sidebar.offsetWidth + "px"; // 200px
+                toggleBtn.style.left = sidebar.offsetWidth + "px"; 
             }
         }
 
-        // Initialize button position
         toggleBtn.style.left = "12px";
     </script>
 

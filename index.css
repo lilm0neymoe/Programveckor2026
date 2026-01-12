@@ -16,7 +16,7 @@ body {
     left: 0;
     width: 200px;
     height: 100%;
-    background-color: #f2f2f2;
+    background-color: #ad7e16;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
@@ -52,8 +52,8 @@ body {
 .toggle-btn {
     width: 100%;
     height: 100%;
-    border: 2px solid #333;
-    background-color: #ccc;
+    border: 2px solid #cf8729;
+    background-color: #ce9936;
     border-radius: 4px;
     position: relative;
     z-index: 2;
@@ -136,4 +136,6 @@ button {
     padding: 10px 16px;
     font-size: 16px;
     cursor: pointer;
+    background-color:rgb(99, 188, 226)
+    ;color: #ffffff;border-color: #ffffff;
 }

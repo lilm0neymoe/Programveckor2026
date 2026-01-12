@@ -20,7 +20,7 @@
         <img src="ChatGPT Image 9 jan. 2026 10_52_51.png" alt="Example Image">
 
         <div class="input-box">
-            <input type="text" id="userInput" placeholder="texxt">
+            <input type="text" id="userInput" placeholder="Skriv din fråga">
 
             <div class="dropdown-container">
                 <label for="actionSelect">Välj</label>
@@ -31,6 +31,10 @@
             </div>
 
             <button id="sendBtn">Skicka</button>
+        </div>
+
+        <div class="output-bar" id="outputBar">
+            Resultatet visas här…
         </div>
     </div>
 
@@ -53,20 +57,21 @@
         const sendBtn = document.getElementById("sendBtn");
         const textInput = document.getElementById("userInput");
         const actionSelect = document.getElementById("actionSelect");
+        const outputBar = document.getElementById("outputBar");
 
         sendBtn.addEventListener("click", () => {
             const text = textInput.value.trim();
             const action = actionSelect.value;
 
             if (!text) {
-                alert("Skriv något först!");
+                outputBar.textContent = "Skriv något först!";
                 return;
             }
 
             if (action === "svar") {
-                alert("Svar på: " + text);
+                outputBar.textContent = "Svar på: " + text;
             } else if (action === "forenkla") {
-                alert("Förenklad version av: " + text);
+                outputBar.textContent = "Förenklad version av: " + text;
             }
 
             textInput.value = "";

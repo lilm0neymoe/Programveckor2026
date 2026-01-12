@@ -41,7 +41,7 @@ class SolveResponse(BaseModel):
   steps: List[Step]
   final_answer: str
 
-app = FastAPI(title="Local Algebra Solver", version="0.1.0")
+app = FastAPI(title="Algebra Solver", version="0.1.0")
 
 app.mount("/static", StaticFiles(directory=".", html=False), name="static")
 
@@ -56,7 +56,7 @@ async def get_index() -> str:
     return f.read()
 
 
-#från documentation, tar en sympy ekvation och gör den bättre visbar i webbläsare
+#tar en sympy ekvation och gör den bättre visbar i webbläsare
 #standerdizes att "vänster = höger"
 def latex_equation(eq: sp.Equality) -> str:
   return f"{sp.latex(eq.lhs)} = {sp.latex(eq.rhs)}"
@@ -90,8 +90,8 @@ def parse_input(
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Kan inte parse input: {exc}")
     
-    #funktionen ska omvandla input från använderen till matte som programmet kan sedan hantera
-    #tar bort onödiga delar och ser till att programmet vet hur man hanterar
+#funktionen ska omvandla input från använderen till matte som programmet kan sedan hantera
+#tar bort onödiga delar och ser till att programmet vet hur man hanterar
 
 def classify_equation(eq: sp.Equality, var: sp.Symbol) -> str: #tar emot sympy ekvationen, och variablen (t.ex x)
 
@@ -127,4 +127,311 @@ def verify_equivalence(
 #kollar att alla steg har samma lösning, från doc
 
 
-#här skriv def linear_solver_steps, def quadratic_solver_steps och def simplify_expression
+#här skriv def linear_solver_steps, def quadratic_solver_step och def simplify_expression
+
+
+#Löser linjera ekv steg för steg
+#Först utökar den och förenklar
+#Sedan Flyytar den allt till vänster
+#Förenklar uttrycket
+#Isolerar variabeln
+#Löser
+def linear_solver_steps(eq: sp.Equality, var: sp.Symbol) -> Tuple[List[Step], sp.Equality]:
+  steps: List[Step] = [] 
+  step_idx = 1
+  current_eq = eq
+
+  lhs_simp = sp.simplify(sp.expand(current_eq.lhs))
+  rhs_simp = sp.simplify(sp.expand(current_eq.rhs))
+  new_eq = sp.Eq(lhs_simp, rhs_simp)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+    steps.append(
+        Step(
+           step_number=step_idx,
+           before=latex_equation(current_eq),
+           after=latex_equation(new_eq),
+           operation="Utöka och förenkla båda sidor",
+           reason="Kombinera lika termer på varje sida",
+        )
+    ) 
+
+    step_idx += 1
+    current_eq = new_eq
+
+  new_eq = sp.Eq(current_eq.lhs - current_eq.rhs, 0)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+    steps.append(
+       Step(
+           step_number=step_idx,
+           before=latex_equation(current_eq),
+           after=latex_equation(new_eq),
+           operation="Subtrahera höger sida från båda sidor",
+           reason="Standardisera ekvationen till = 0",
+       )
+    )
+
+    step_idx += 1
+    current_eq = new_eq
+
+  lhs_simp = sp.simplify(current_eq.lhs)
+  new_eq = sp.Eq(lhs_simp, 0)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+    steps.append(
+     Step(
+          step_number=step_idx,
+          before=latex_equation(current_eq),
+          after=latex_equation(new_eq),
+          operation="Kombinera lika termer",
+          reason="Förenkla uttrycket på vänstra sidan",
+      )
+    )
+
+    step_idx += 1
+    current_eq = new_eq
+
+  
+  expr = sp.expand(current_eq.lhs)
+  coef = expr.coeff(var)
+  const = expr.subs(var, 0)
+
+  new_eq = sp.Eq(coef * var, -const)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+    steps.append(
+        Step(
+           step_number=step_idx,
+           before=latex_equation(current_eq),
+           after=latex_equation(new_eq),
+           operation="Isolera variabelterme",
+           reason="Flytta konstanterna till andra sidan"
+        )
+     )
+    step_idx += 1
+    current_eq = new_eq
+
+  if coef != 0:
+    solution = sp.simplify(-const / coef)
+    new_eq = sp.Eq(var, solution)
+    if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+      steps.append(
+          Step(
+             step_number=step_idx,
+             before=latex_equation(current_eq),
+             after=latex_equation(new_eq),
+             operation="Dela båda sidor med koefficienten",
+             reason="Lös för variabeln"
+
+          )
+       )
+      current_eq = new_eq
+  return steps, current_eq
+
+#Löser genom förenkling, faktoresering om det går, annars pq formeln
+def quadratic_solver_step (
+    eq: sp.Equality, var: sp.Symbol
+) -> Tuple[List[Step], str]:
+   
+  steps: List[Step] = []
+  step_idx = 1
+  current_eq = eq
+
+  lhs_simp = sp.simplify(sp.expand(current_eq.lhs))
+  rhs_simp = sp.simplify(sp.expand(current_eq.rhs))
+  new_eq = sp.Eq(lhs_simp, rhs_simp)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+      steps.append(
+         Step(
+          step_number=step_idx,
+          before=latex_equation(current_eq),
+          after=latex_equation(new_eq),
+          operation="Utöka och förenkla båda sidor",
+          reason="Kombinera lika termer på varje sida"
+         )
+      )
+      step_idx += 1
+      current_eq = new_eq
+
+  new_eq = sp.Eq(current_eq.lhs - current_eq.rhs, 0)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+     steps.append(
+          Step(
+             step_number=step_idx,
+             before=latex_equation(current_eq),
+             after=latex_equation(new_eq),
+             operation="Subtrahera höger sida från båda sidor",
+             reason="Standardisera ekvationen till = 0",
+            )
+      )
+     step_idx += 1
+     current_eq = new_eq
+  expr_simp = sp.simplify(sp.expand(current_eq.lhs))
+  new_eq = sp.Eq(expr_simp, 0)
+  if new_eq != current_eq and verify_equivalence(current_eq, new_eq, var):
+      steps.append(
+          Step(
+              step_number=step_idx,
+              before=latex_equation(current_eq),
+              after=latex_equation(new_eq),
+              operation="Kombinera lika termer",
+              reason="Förenkla andragradsekvationen",
+            )
+      )
+      step_idx += 1
+      current_eq = new_eq
+
+  poly = sp.Poly(current_eq.lhs, var)
+  coeffs = poly.all_coeffs()
+  while len(coeffs) < 3:
+      coeffs.append(0)
+  a, b, c = coeffs[0], coeffs[1], coeffs[2]
+    
+  factor_expr = sp.factor(poly.as_expr())
+  factor_data = sp.factor_list(poly.as_expr())
+  linear_factors = [
+      (base, exp)
+      for base, exp in factor_data[1]
+      if sp.Poly(base, var).degree() == 1
+    ]
+  if linear_factors:
+      factored_eq = sp.Eq(factor_expr, 0)
+      if verify_equivalence(current_eq, factored_eq, var):
+          steps.append(
+              Step(
+                  step_number=step_idx,
+                  before=latex_equation(current_eq),
+                  after=latex_equation(factored_eq),
+                  operation="Faktorisera andragradsekvationen",
+                    reason="Skriv om andragradsekvationen som en produkt av faktorerna",
+                )
+            )
+          step_idx += 1
+          current_eq = factored_eq
+      solutions: List[sp.Expr] = []
+      for base, exp in factor_data[1]:
+          if not base.has(var):
+              continue
+          sol = sp.solve(sp.Eq(base, 0), var)
+          solutions.extend(sol)
+      solutions_unique = list(dict.fromkeys([sp.simplify(s) for s in solutions]))
+      if len(solutions_unique) == 1:
+          sol_latex = f"{sp.latex(var)} = {sp.latex(solutions_unique[0])}"
+      else:
+          set_latex = ", ".join(sp.latex(s) for s in solutions_unique)
+          sol_latex = f"{sp.latex(var)} \in \{{{set_latex}\}}"
+      steps.append(
+            Step(
+                step_number=step_idx,
+                before=latex_equation(current_eq),
+                after=sol_latex,
+                operation="Sätt varje faktor lika med noll och lös",
+                reason="Om en produkt är noll måste minst en faktor vara noll, så vi löser varje faktor för sig",
+            )
+        )
+      return steps, sol_latex
+    
+  discriminant = sp.simplify(b ** 2 - 4 * a * c)
+  disc_expr = sp.simplify(discriminant)
+  steps.append(
+        Step(
+            step_number=step_idx,
+            before=latex_equation(current_eq),
+            after=f"\\Delta = {sp.latex(disc_expr)}",
+            operation="Undersök antalet lösningar",
+            reason="Uttrycket under rottecknet avgör om ekvationen har två, en eller inga reella lösningar",
+        )
+    )
+  step_idx += 1
+  sqrt_disc = sp.sqrt(discriminant)
+  sol_plus = sp.simplify((-b + sqrt_disc) / (2 * a))
+  sol_minus = sp.simplify((-b - sqrt_disc) / (2 * a))
+  if sp.simplify(sol_plus - sol_minus) == 0:
+      final_answer_latex = f"{sp.latex(var)} = {sp.latex(sol_plus)}"
+  else:
+      final_answer_latex = f"{sp.latex(var)} \in \{{{sp.latex(sol_plus)}, {sp.latex(sol_minus)}\}}"
+  steps.append(
+        Step(
+            step_number=step_idx,
+            before=f"\\Delta = {sp.latex(disc_expr)}",
+            after=final_answer_latex,
+            operation="Använd pq-formeln",
+            reason="Formeln x = (−b ± √Δ) / (2a) används för att lösa andragradsekvationen",
+        )
+    )
+  return steps, final_answer_latex
+
+def simplify_expression(expr: sp.Expr) -> Tuple[List[Step], sp.Expr]:
+
+  steps: List[Step] = []
+  step_idx = 1
+  original = expr
+  expanded = sp.expand(expr)
+  simplified = sp.simplify(expanded)
+  if simplified != original:
+    steps.append(
+      Step(
+        step_number=step_idx,
+        before=latex_expr(original),
+        after=latex_expr(simplified),
+        operation="Expandera och förenkla",
+        reason="Kombinera lika termer och förenkla uttrycket",
+            )
+        )
+  return steps, simplified
+
+
+@app.post("/solve", response_class=JSONResponse)
+async def solve(request: SolveRequests) -> SolveResponse:
+
+  parsed, kind = parse_input(request.input, request.variable, request.mode)
+
+  if kind == "equation":
+      symbols = (parsed.lhs - parsed.rhs).free_symbols
+  else:
+      symbols = parsed.free_symbols
+  if request.mode == "simplify" and kind == "expression":
+      steps, simplified = simplify_expression(parsed)
+      final_answer = latex_expr(simplified)
+      return SolveResponse(
+          original_input=request.input,
+          mode=request.mode,
+          steps=steps,
+          final_answer=final_answer,
+        )
+  if len(symbols) == 1:
+     var_symbol = next(iter(symbols))
+  elif len(symbols) == 0:
+     var_symbol = sp.Symbol(request.variable or "x")
+  else:
+     raise HTTPException(
+        status_code=400,
+        detail=(
+           f"Felra variabler hittades! : {', '.join(sorted(str(s) for s in symbols))}. "
+           "Välj en variabel att lösa efter istället, eller testa förenkla funktionen"
+        )
+     )
+  if kind != "equation":
+     raise HTTPException(status_code=400, detail="Ingen ekvation finns")
+  
+  classification = classify_equation(parsed, var_symbol)
+  if classification == "linear":
+    steps, final_eq = linear_solver_steps(parsed, var_symbol)
+    final_answer = latex_equation(final_eq)
+  elif classification == "quadratic":
+    steps, final_answer = quadratic_solver_step(parsed, var_symbol)
+  else:
+    sol = sp.solve(parsed, var_symbol)
+    steps = []
+    if len(sol) == 0:
+      final_answer = f"{sp.latex(var_symbol)} \\in \\emptyset"
+    elif len(sol) == 1:
+      final_answer = f"{sp.latex(var_symbol)} = {sp.latex(sol[0])}"
+    else:
+      sol_latex = ", ".join(sp.latex(s) for s in sol)
+      final_answer = f"{sp.latex(var_symbol)} \\in \\{{{sol_latex}\\}}"
+
+
+  return SolveResponse(
+    original_input=request.input,
+    mode=request.mode,
+    steps=steps,
+    final_answer=final_answer,
+    )

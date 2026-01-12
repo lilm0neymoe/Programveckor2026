@@ -1,50 +1,67 @@
-const { mod } = require("three/tsl");
+const sidebar = document.getElementById("sidebar");
+const toggleContainer = document.getElementById("toggleContainer");
 
-async function SolveProblem() {
-  const input = document.getElementById('user-input').value;
-  const mode = document.getElementById('mode').value;
+function toggleSidebar() {
+  sidebar.classList.toggle("hidden");
+  if (sidebar.classList.contains("hidden")) {
+    toggleContainer.style.left = "12px";
+  } else {
+    toggleContainer.style.left = sidebar.offsetWidth + "px";
+  }
+}
 
-  if (!input.trim()) {
-    alert('Inget problem in skrivet!');
+toggleContainer.style.left = "12px";
+
+const sendBtn = document.getElementById("sendBtn");
+const textInput = document.getElementById("userInput");
+const actionSelect = document.getElementById("actionSelect");
+const outputBar = document.getElementById("outputBar");
+
+sendBtn.addEventListener("click", solveProblem);
+
+async function solveProblem() {
+  const input = textInput.value.trim();
+  const action = actionSelect.value;
+
+  if (!input) {
+    outputBar.textContent = "Skriv något först!";
     return;
   }
 
-  const payload = {
-    input: input,
-    mode: mode
-  };
+  const mode = (action === "forenkla") ? "simplify" : "solve";
 
-  const response = await fetch('/solve', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (data.steps && data.steps.length > 0) {
-    data.steps.forEach(step => {
-      const stepDiv = document.createElement('div');
-      stepDiv.className = 'step';
-      stepDiv.innerHTML =
-        `<p>Step ${step.step_number}: ${step.operation}</p>` +
-        `<p>${step.reason}</p>` +
-        `<p>Before: \\(${step.before}\\)</p>` +
-        `<p>After: \\(${step.after}\\)</p>`;
-      resultsDiv.appendChild(stepDiv);
+  try {
+    const response = await fetch("/solve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ input, mode, variable: "x" })
     });
-  }
 
-  const finalDiv = document.createElement('div');
-  finalDiv.innerHTML =
-    `<p><strong>Final Answer:</strong> \\(${data.final_answer}\\)</p>`;
-  resultsDiv.appendChild(finalDiv);
+    const data = await response.json();
 
-  if (typeof renderMathInElement === 'function') {
-    renderMathInElement(resultsDiv, {
-      delimiters: [
-        { left: "\\(", right: "\\)", display: false },
-        { left: "\\[", right: "\\]", display: true }
-      ],
-      throwOnError: false
-    });
+    if (!response.ok) {
+      outputBar.textContent = data?.detail ?? "Något gick fel.";
+      return;
+    }
+
+    let html = "";
+    if (data.steps?.length) {
+      for (const step of data.steps) {
+        html += `
+          <div class="step">
+            <p><strong>Steg ${step.step_number}: ${step.operation}</strong></p>
+            <p><em>${step.reason}</em></p>
+            <p>Före: ${step.before}</p>
+            <p>Efter: ${step.after}</p>
+          </div>
+        `;
+      }
+    }
+    html += `<div class="final"><strong>Svar:</strong> ${data.final_answer}</div>`;
+
+    outputBar.innerHTML = html;
+    textInput.value = "";
+  } catch (e) {
+    outputBar.textContent = "Kunde inte nå servern. Är FastAPI igång?";
   }
 }

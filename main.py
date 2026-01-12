@@ -26,7 +26,7 @@ TRANSFORMATIONS = standard_transformations + (
 class SolveRequests(BaseModel):
   input: str = Field(...)
   variable: str = Field("x")
-  mode: str = Field("solve")
+  mode: str = Field("solve")  
 
 class Step(BaseModel):
   step_number: int

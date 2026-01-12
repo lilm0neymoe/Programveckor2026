@@ -4,30 +4,11 @@
     <meta charset="UTF-8">
     <title>Layout med Notes</title>
     <link rel="stylesheet" href="index.css">
-
-    <style>
-        
-        .input-box {
-            display: flex;
-            align-items: flex-end;
-            gap: 10px;
-        }
-
-        .dropdown-container {
-            display: flex;
-            flex-direction: column;
-            font-size: 12px;
-        }
-
-        .dropdown-container select {
-            padding: 4px;
-        }
-    </style>
 </head>
 <body>
 
     <div class="sidebar hidden" id="sidebar">
-        <textarea name="Text1" placeholder="Notes..."></textarea>
+        <textarea placeholder="Notes..."></textarea>
     </div>
 
     <div class="toggle-container" id="toggleContainer">
@@ -39,7 +20,7 @@
         <img src="ChatGPT Image 9 jan. 2026 10_52_51.png" alt="Example Image">
 
         <div class="input-box">
-            <input type="text" placeholder="texxt">
+            <input type="text" id="userInput" placeholder="texxt">
 
             <div class="dropdown-container">
                 <label for="actionSelect">Välj</label>
@@ -49,8 +30,8 @@
                 </select>
             </div>
 
-            <button>Skicka</button>
-        </div>  
+            <button id="sendBtn">Skicka</button>
+        </div>
     </div>
 
     <script>
@@ -63,11 +44,33 @@
             if (sidebar.classList.contains("hidden")) {
                 toggleBtn.style.left = "12px";
             } else {
-                toggleBtn.style.left = sidebar.offsetWidth + "px"; 
+                toggleBtn.style.left = sidebar.offsetWidth + "px";
             }
         }
 
         toggleBtn.style.left = "12px";
+
+        const sendBtn = document.getElementById("sendBtn");
+        const textInput = document.getElementById("userInput");
+        const actionSelect = document.getElementById("actionSelect");
+
+        sendBtn.addEventListener("click", () => {
+            const text = textInput.value.trim();
+            const action = actionSelect.value;
+
+            if (!text) {
+                alert("Skriv något först!");
+                return;
+            }
+
+            if (action === "svar") {
+                alert("Svar på: " + text);
+            } else if (action === "forenkla") {
+                alert("Förenklad version av: " + text);
+            }
+
+            textInput.value = "";
+        });
     </script>
 
 </body>

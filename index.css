@@ -40,7 +40,7 @@ body {
 
 /* Toggle button */
 .toggle-container {
-    width: 32px;
+    width: 34px;
     height: 32px;
     position: fixed;
     top: 12px;
@@ -156,3 +156,4 @@ button {
     text-align: left;
     box-sizing: border-box;¨
 }
+

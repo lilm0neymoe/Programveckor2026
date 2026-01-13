@@ -153,3 +153,96 @@ input[type="text"] {
     text-align: left;
     box-sizing: border-box;
 }
+
+/* Language and darkmode */
+
+#Uk, #China, #Hong, .lang-selected img{
+    height: 50px;
+    width: 50px;
+}
+
+#shade{
+    padding: 10%;
+    border: 1px solid #ccc;
+    background-color: #ccc;
+    border-radius: 1em;
+}
+
+/* all dark mode colors*/
+
+.darkmode{
+    background-color: #333;
+}
+
+.darkmode #shade{
+    border: 1px solid #232323;
+    background-color: #232323;
+    color: white;
+}
+
+.darkmode .lang-selected{
+    border: 1px solid #232323;
+    background-color: #232323;
+    color: white;
+}
+
+.darkmode .menu ul{
+    border: 1px solid #232323;
+    background-color: #232323;
+    color: white;
+}
+
+/* Language */
+
+.menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.lang-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.menu ul {
+    display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin: 5% 0 0 0;
+  width: 160px;
+  padding-left: 10px;
+}
+
+.menu ul li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+}
+
+.menu ul li img {
+  width: 30px;
+}
+
+a{
+    text-decoration: none;
+    opacity: 0.5;
+    width: 160px;
+}
+
+.menu ul li:hover {
+  background: #f0f0f0;
+  padding: 10px;
+  transition: 1s;
+}
+
+.menu:hover ul {
+  display: block;
+}

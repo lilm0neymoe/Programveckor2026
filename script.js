@@ -1,6 +1,7 @@
 const sidebar = document.getElementById("sidebar");
 const toggleContainer = document.getElementById("toggleContainer");
 
+
 function toggleSidebar() {
   sidebar.classList.toggle("hidden");
   if (sidebar.classList.contains("hidden")) {

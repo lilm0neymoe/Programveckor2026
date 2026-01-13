@@ -1,4 +1,21 @@
 console.log("script.js laddades!");
+
+function renderLatex(el, latex, displayMode = true) {
+  const s = (latex ?? "").toString().trim();
+  if (!s) { el.textContent = ""; return; }
+
+  try {
+    katex.render(s, el, {
+      displayMode,
+      throwOnError: false,
+      strict: "ignore"
+    });
+  } catch (e) {
+    el.textContent = s; // fallback
+  }
+}
+
+
 const sidebar = document.getElementById("sidebar");
 const toggleContainer = document.getElementById("toggleContainer");
 const toggleBtn = document.getElementById("toggleBtn");
@@ -24,6 +41,11 @@ sendBtn.addEventListener("click", solveProblem);
 
 async function solveProblem() {
   console.log("Klickade Skicka");
+  console.log("katex är:", window.katex);
+  if (!window.katex) {
+    outputBar.textContent = "KaTeX är INTE laddat. Lägg in katex.min.js + katex.min.css i index.html.";
+    return;
+  }
   const input = textInput.value.trim();
   const action = actionSelect.value;
 
@@ -48,22 +70,58 @@ async function solveProblem() {
       return;
     }
 
-    let html = "";
-    if (data.steps?.length) {
-      for (const step of data.steps) {
-        html += `
-          <div class="step">
-            <p><strong>Steg ${step.step_number}: ${step.operation}</strong></p>
-            <p><em>${step.reason}</em></p>
-            <p>Före: ${step.before}</p>
-            <p>Efter: ${step.after}</p>
-          </div>
-        `;
-      }
-    }
-    html += `<div class="final"><strong>Svar:</strong> ${data.final_answer}</div>`;
 
-    outputBar.innerHTML = html;
+outputBar.innerHTML = "";
+
+if (data.steps?.length) {
+  for (const step of data.steps) {
+    const stepDiv = document.createElement("div");
+    stepDiv.className = "step";
+
+    const title = document.createElement("p");
+    title.innerHTML = `<strong>Steg ${step.step_number}: ${step.operation}</strong>`;
+    stepDiv.appendChild(title);
+
+    const reason = document.createElement("p");
+    reason.innerHTML = `<em>${step.reason}</em>`;
+    stepDiv.appendChild(reason);
+
+    // Före
+    const beforeLabel = document.createElement("div");
+    beforeLabel.textContent = "Före:";
+    stepDiv.appendChild(beforeLabel);
+
+    const beforeMath = document.createElement("div");
+    renderLatex(beforeMath, step.before, true); 
+    stepDiv.appendChild(beforeMath);
+
+    // Efter
+    const afterLabel = document.createElement("div");
+    afterLabel.textContent = "Efter:";
+    stepDiv.appendChild(afterLabel);
+
+    const afterMath = document.createElement("div");
+    renderLatex(afterMath, step.after, true); 
+    stepDiv.appendChild(afterMath);
+
+    outputBar.appendChild(stepDiv);
+  }
+}
+
+    // Svar
+    const finalDiv = document.createElement("div");
+    finalDiv.className = "final";
+
+    const finalLabel = document.createElement("strong");
+    finalLabel.textContent = "Svar:";
+    finalDiv.appendChild(finalLabel);
+
+    const finalMath = document.createElement("div");
+    renderLatex(finalMath, data.final_answer, true);
+    finalDiv.appendChild(finalMath);
+
+    outputBar.appendChild(finalDiv);
+
     textInput.value = "";
   } catch (e) {
     outputBar.textContent = "Kunde inte nå /solve. Öppna sidan via http://127.0.0.1:8000/ och se att uvicorn kör.";

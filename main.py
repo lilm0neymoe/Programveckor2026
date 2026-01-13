@@ -54,15 +54,34 @@ def script():
 def css():
     return FileResponse("index.css", media_type="text/css")
 
-#tar en sympy ekvation och gör den bättre visbar i webbläsare
-#standerdizes att "vänster = höger"
-def latex_equation(eq: sp.Equality) -> str:
-  return f"{sp.latex(eq.lhs)} = {sp.latex(eq.rhs)}"
-#Samma sak men med en expression istället för ekvation
-def latex_expr(expr: sp.Expr) -> str:
-  return sp.latex(expr)
+#tar en sympy ekvation och gör den bättre visbar i webbläsare, LaText hjälpare
 
-# Returnerar antingen en ekvation eller ett uttryck + en sträng som beskriver typen
+
+LATEX_KW = {
+    "mul_symbol": r"\cdot ",   # gör multiplikation tydlig: 210·y istället för 210 y
+    # du kan lägga fler senare om du vill
+}
+
+def latex_expr(expr: sp.Expr) -> str:
+    return sp.latex(expr, **LATEX_KW)
+
+def latex_equation(eq: sp.Equality) -> str:
+    return f"{latex_expr(eq.lhs)} = {latex_expr(eq.rhs)}"
+
+def latex_aligned_lines(lines: List[str]) -> str:
+    
+    #Tar en lista av LaTeX-rader och gör dem till ett aligned-block som KaTeX renderar snyggt.
+    #Varje rad ska redan vara latex (utan $).
+
+    body = r" \\ ".join(lines)
+    return r"\begin{aligned}" + body + r"\end{aligned}"
+
+def latex_two_solutions(var: sp.Symbol, s1: sp.Expr, s2: sp.Expr) -> str:
+    v = latex_expr(var)
+    l1 = latex_expr(sp.simplify(s1))
+    l2 = latex_expr(sp.simplify(s2))
+    return latex_aligned_lines([rf"{v}_1 &= {l1}", rf"{v}_2 &= {l2}"])
+#returnerar antingen en ekvation eller ett uttryck + en sträng som beskriver typen
 def parse_input(
     user_input: str, 
     variable: str, 
@@ -311,10 +330,14 @@ def quadratic_solver_step (
           solutions.extend(sol)
       solutions_unique = list(dict.fromkeys([sp.simplify(s) for s in solutions]))
       if len(solutions_unique) == 1:
-          sol_latex = f"{sp.latex(var)} = {sp.latex(solutions_unique[0])}"
+          sol_latex = latex_aligned_lines([
+              rf"{latex_expr(var)} &= {latex_expr(solutions_unique[0])}"
+          ])
       else:
-          set_latex = ", ".join(sp.latex(s) for s in solutions_unique)
-          sol_latex = f"{sp.latex(var)} \in \{{{set_latex}\}}"
+          # Visa alla lösningar i flera rader för every scenario
+          lines = [rf"{latex_expr(var)}_{i+1} &= {latex_expr(s)}"
+                  for i, s in enumerate(solutions_unique)]
+          sol_latex = latex_aligned_lines(lines)
       steps.append(
             Step(
                 step_number=step_idx,
@@ -332,7 +355,7 @@ def quadratic_solver_step (
         Step(
             step_number=step_idx,
             before=latex_equation(current_eq),
-            after=f"\\Delta = {sp.latex(disc_expr)}",
+            after=rf"\Delta = {latex_expr(disc_expr)}",
             operation="Undersök antalet lösningar",
             reason="Uttrycket under rottecknet avgör om ekvationen har två, en eller inga reella lösningar",
         )
@@ -341,19 +364,25 @@ def quadratic_solver_step (
   sqrt_disc = sp.sqrt(discriminant)
   sol_plus = sp.simplify((-b + sqrt_disc) / (2 * a))
   sol_minus = sp.simplify((-b - sqrt_disc) / (2 * a))
+
   if sp.simplify(sol_plus - sol_minus) == 0:
-      final_answer_latex = f"{sp.latex(var)} = {sp.latex(sol_plus)}"
+      #En lösning
+      final_answer_latex = latex_aligned_lines([
+          rf"{latex_expr(var)} &= {latex_expr(sol_plus)}"
+      ])
   else:
-      final_answer_latex = f"{sp.latex(var)} \in \{{{sp.latex(sol_plus)}, {sp.latex(sol_minus)}\}}"
+      #Alla fall (två rötter) bra aligned
+      final_answer_latex = latex_two_solutions(var, sol_plus, sol_minus)
+
   steps.append(
-        Step(
-            step_number=step_idx,
-            before=f"\\Delta = {sp.latex(disc_expr)}",
-            after=final_answer_latex,
-            operation="Använd pq-formeln",
-            reason="Formeln x = (−b ± √Δ) / (2a) används för att lösa andragradsekvationen",
-        )
-    )
+      Step(
+          step_number=step_idx,
+          before=rf"\Delta = {latex_expr(disc_expr)}",
+          after=final_answer_latex,
+          operation="Använd pq-formeln",
+          reason="Formeln x = (−b ± √Δ) / (2a) används för att lösa andragradsekvationen",
+      )
+  )
   return steps, final_answer_latex
 
 def simplify_expression(expr: sp.Expr) -> Tuple[List[Step], sp.Expr]:

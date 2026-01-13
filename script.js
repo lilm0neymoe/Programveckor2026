@@ -1,6 +1,8 @@
+console.log("script.js laddades!");
 const sidebar = document.getElementById("sidebar");
 const toggleContainer = document.getElementById("toggleContainer");
-
+const toggleBtn = document.getElementById("toggleBtn");
+toggleBtn.addEventListener("click", toggleSidebar);
 
 function toggleSidebar() {
   sidebar.classList.toggle("hidden");
@@ -21,6 +23,7 @@ const outputBar = document.getElementById("outputBar");
 sendBtn.addEventListener("click", solveProblem);
 
 async function solveProblem() {
+  console.log("Klickade Skicka");
   const input = textInput.value.trim();
   const action = actionSelect.value;
 
@@ -63,6 +66,6 @@ async function solveProblem() {
     outputBar.innerHTML = html;
     textInput.value = "";
   } catch (e) {
-    outputBar.textContent = "Kunde inte nå servern. Är FastAPI igång?";
+    outputBar.textContent = "Kunde inte nå /solve. Öppna sidan via http://127.0.0.1:8000/ och se att uvicorn kör.";
   }
 }

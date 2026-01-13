@@ -5,8 +5,8 @@ from typing import List, Tuple, Union
 from fastapi.staticfiles import StaticFiles
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+import os
 from pydantic import BaseModel, Field
 
 import sympy as sp
@@ -43,18 +43,16 @@ class SolveResponse(BaseModel):
 
 app = FastAPI(title="Algebra Solver", version="0.1.0")
 
-app.mount("/static", StaticFiles(directory=".", html=False), name="static")
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static", html=False), name="static")
 
 @app.get("/script.js")
-async def get_script() -> FileResponse:
-  return FileResponse("script.js", media_type="application/javascript")
+def script():
+    return FileResponse("script.js", media_type="application/javascript")
 
-@app.get("/", response_class=HTMLResponse)
-async def get_index() -> str:
-    
-  with open("index.html", "r", encoding="utf-8") as f:
-    return f.read()
-
+@app.get("/index.css")
+def css():
+    return FileResponse("index.css", media_type="text/css")
 
 #tar en sympy ekvation och gör den bättre visbar i webbläsare
 #standerdizes att "vänster = höger"
@@ -435,3 +433,5 @@ async def solve(request: SolveRequests) -> SolveResponse:
     steps=steps,
     final_answer=final_answer,
     )
+
+app.mount("/", StaticFiles(directory=".", html=True), name="site")

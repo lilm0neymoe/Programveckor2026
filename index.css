@@ -10,11 +10,11 @@
   --output-bg: #badae4;
   --output-border: #8b8b8b;
 
-  --sidebar-bg: #ad7e16;
+  --sidebar-bg: #badae4;
 
   --hover: rgba(127,127,127,0.15);
 
-  --backgroundImg: url(images/BackgroundLightIMG.png);
+  --backgroundImg: url(/images/BackgroundLightIMG.png);
 }
 
 body.darkmode{
@@ -29,11 +29,11 @@ body.darkmode{
   --output-bg: #1a2a33;
   --output-border: #2a2a2a;
 
-  --sidebar-bg: #7a5810;
+  --sidebar-bg: #1a2a33;
 
   --hover: rgba(255,255,255,0.08);
 
-  --backgroundImg: url(images/BackgroundDarkIMG.png);
+  --backgroundImg: url(/images/BackgroundDarkIMG.png);
 }
 
 *{ box-sizing: border-box; }
@@ -45,7 +45,11 @@ html, body{
 body{
   margin: 0;
   font-family: Arial, sans-serif;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--backgroundImg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
   color: var(--text);
   overflow-x: hidden;
 }
@@ -231,7 +235,7 @@ body.darkmode .topbar{
   object-fit: cover;
 
   border-radius: 8px;
-  border: 2px solid #cf8729;
+  border: 2px solid var(--sidebar-bg);
 }
 
 .img-open{ opacity: 0; transition: opacity 0.15s ease; }

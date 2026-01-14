@@ -7,14 +7,27 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
 </head>
 <body>
+    <nav>
+        <div class="menu">
+            <div class="lang-selected">
+                <img src="/flag/sweden.png" alt="SWE"> <p>Svenska</p>
+            </div>
+            <ul>
+                <li id="Uk"><img src="/flag/united-kingdom.png" alt="flag"><a href="#"><p>Engelska</p></a></li>
+                <li id="China"><img src="/flag/china.png" alt="flag"><a href="#"><p>Madarin</p></a></li>
+                <li id="Hong"><img src="/flag/world.png" alt="flag"><a href="#"><p>Kantonesiska</p></a></li>
+            </ul>
+        </div>
+        <button id="shade">Mörk läge</button>
+    </nav>
 
     <div class="sidebar hidden" id="sidebar">
         <textarea placeholder="Notes...">test</textarea>
     </div>
 
-    <div class="toggle-container" id="toggleContainer">
-        <button class="toggle-btn" id="toggleBtn"></button>
-        <img src="Open_Book.jpg" alt="Open Book" class="hover-img">
+    <div class="toggle-container" id="toggleContainer" onclick="toggleSidebar()">
+        <img src="Closed_Book.png" class="toggle-img img-closed" alt="Closed book">
+        <img src="Open_Book.jpg" class="toggle-img img-open" alt="Open book">
     </div>
 
     <div class="main">
@@ -23,22 +36,57 @@
         <div class="input-box">
             <input type="text" id="userInput" placeholder="Skriv din fråga">
 
-            <div class="dropdaown-container">
-                <label for="actionSelect">Välj</label>
+            <div class="dropdown-container">
                 <select id="actionSelect">
                     <option value="svar">Svar</option>
                     <option value="forenkla">Förenkla</option>
                 </select>
             </div>
 
-            <button id="sendBtn">Skicka</button>
+            <button id="sendBtn"><img src="Arrow_Icon_Colored.png" alt="Arrow_Icon"></button>
         </div>
 
         <div class="output-bar" id="outputBar">
             Resultatet visas här…
         </div>
     </div>
-    <script src="script.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+
+    <script>
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("toggleContainer");
+
+    function toggleSidebar() {
+        sidebar.classList.toggle("hidden");
+
+        if (sidebar.classList.contains("hidden")) {
+            toggleBtn.style.left = "12px";
+        } else {
+            toggleBtn.style.left = sidebar.offsetWidth + "px";
+        }
+    }
+
+    const sendBtn = document.getElementById("sendBtn");
+    const textInput = document.getElementById("userInput");
+    const actionSelect = document.getElementById("actionSelect");
+    const outputBar = document.getElementById("outputBar");
+
+    sendBtn.addEventListener("click", () => {
+        const text = textInput.value.trim();
+        const action = actionSelect.value;
+
+        if (!text) {
+            outputBar.textContent = "Skriv något först!";
+            return;
+        }
+
+        outputBar.textContent =
+            action === "svar"
+                ? "Svar på: " + text
+                : "Förenklad version av: " + text;
+
+        textInput.value = "";
+    });
+    </script>
+
 </body>
 </html>

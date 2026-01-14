@@ -11,26 +11,17 @@ function renderLatex(el, latex, displayMode = true) {
       strict: "ignore"
     });
   } catch (e) {
-    el.textContent = s; // fallback
+    el.textContent = s; 
   }
 }
 
 
 const sidebar = document.getElementById("sidebar");
 const toggleContainer = document.getElementById("toggleContainer");
-const toggleBtn = document.getElementById("toggleBtn");
-toggleBtn.addEventListener("click", toggleSidebar);
 
 function toggleSidebar() {
   sidebar.classList.toggle("hidden");
-  if (sidebar.classList.contains("hidden")) {
-    toggleContainer.style.left = "12px";
-  } else {
-    toggleContainer.style.left = sidebar.offsetWidth + "px";
-  }
 }
-
-toggleContainer.style.left = "12px";
 
 const sendBtn = document.getElementById("sendBtn");
 const textInput = document.getElementById("userInput");
@@ -40,6 +31,7 @@ const outputBar = document.getElementById("outputBar");
 sendBtn.addEventListener("click", solveProblem);
 
 async function solveProblem() {
+  outputBar.style.display = "block";
   console.log("Klickade Skicka");
   console.log("katex är:", window.katex);
   if (!window.katex) {
@@ -57,12 +49,16 @@ async function solveProblem() {
   const mode = (action === "forenkla") ? "simplify" : "solve";
 
   try {
-    const response = await fetch("/solve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input, mode, variable: "x" })
-    });
-
+   const response = await fetch("/solve", {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({
+       input: input,
+       mode: mode,
+       variable: "x",
+       lang: currentLang 
+     })
+  });
     const data = await response.json();
 
     if (!response.ok) {
@@ -127,3 +123,131 @@ if (data.steps?.length) {
     outputBar.textContent = "Kunde inte nå /solve. Öppna sidan via http://127.0.0.1:8000/ och se att uvicorn kör.";
   }
 }
+
+let currentLang = "sv";
+
+const HERO_IMAGES = {
+  en: {
+    light: "images/SolveyLightEN.png",
+    dark: "images/SolveyDarkEN.png",
+  },
+  sv: {
+    light: "images/SolveyLightEN.png",
+    dark: "images/SolveyDarkEN.png",
+  },
+  zh: {
+    light: "images/SolveyLightCN.png",
+    dark: "images/SolveyDarkCN.png",
+  },
+  yue: {
+    light: "images/SolveyLightCN.png",
+    dark: "images/SolveyDarkCN.png",
+  },
+};
+const I18N = {
+  sv: {
+    inputPlaceholder: "Skriv din fråga",
+    outputPlaceholder: "Resultatet visas här…",
+    actionSolve: "Lös",
+    actionSimplify: "Förenkla",
+  },
+  en: {
+    inputPlaceholder: "Type your question",
+    outputPlaceholder: "Result will appear here…",
+    actionSolve: "Solve",
+    actionSimplify: "Simplify",
+  },
+  zh: {
+    inputPlaceholder: "输入你的问题",
+    outputPlaceholder: "结果会显示在这里…",
+    actionSolve: "求解",
+    actionSimplify: "化简",
+  },
+  yue: {
+    inputPlaceholder: "輸入你嘅問題",
+    outputPlaceholder: "結果會喺呢度顯示…",
+    actionSolve: "求解",
+    actionSimplify: "化簡",
+  },
+};
+
+const heroImg = document.getElementById("heroImg");
+
+function isDarkMode() {
+  return document.body.classList.contains("darkmode");
+}
+
+function updateHeroImage() {
+  const themeKey = isDarkMode() ? "dark" : "light";
+  const pack = HERO_IMAGES[currentLang] || HERO_IMAGES.sv;
+
+  if (heroImg && pack && pack[themeKey]) {
+    heroImg.src = pack[themeKey];
+  }
+}
+
+function applyLanguage(lang) {
+  currentLang = lang;
+
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const val = I18N?.[lang]?.[key];
+    if (val != null) el.textContent = val;
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    const val = I18N?.[lang]?.[key];
+    if (val != null) el.setAttribute("placeholder", val);
+  });
+
+  updateHeroImage();
+}
+
+const shadeBtn = document.getElementById("shade");
+const shadeIcon = document.getElementById("shadeIcon");
+
+function updateShadeIcon() {
+  if (!shadeIcon) return;
+  shadeIcon.textContent = isDarkMode() ? "☀️" : "🌙";
+}
+
+shadeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("darkmode");
+  updateShadeIcon();
+  updateHeroImage();
+});
+
+const langMenu = document.getElementById("langMenu");
+const langSelectedImg = document.getElementById("langSelectedImg");
+const langList = document.getElementById("langList");
+
+document.getElementById("langSelected").addEventListener("click", (e) => {
+  e.stopPropagation();
+  langMenu.classList.toggle("open");
+});
+
+document.addEventListener("click", () => {
+  langMenu.classList.remove("open");
+});
+
+langList.querySelectorAll("li").forEach(li => {
+  li.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const lang = li.getAttribute("data-lang");
+    const img = li.querySelector("img");
+
+    if (img && langSelectedImg) {
+      langSelectedImg.src = img.src;
+      langSelectedImg.alt = img.alt;
+    }
+
+    applyLanguage(lang);
+    langMenu.classList.remove("open");
+  });
+});
+
+
+updateShadeIcon();
+applyLanguage(currentLang);
+updateHeroImage();

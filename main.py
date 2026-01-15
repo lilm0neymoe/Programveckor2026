@@ -1,4 +1,4 @@
-# ===================== HUR MAN KÖR PROJEKTET =====================
+#  HUR MAN KÖR PROJEKTET 
 # 1. Skapa och aktivera virtuell miljö:
 #    Windows:
 #      py -m venv .venv
@@ -12,8 +12,6 @@
 #
 # 4. Öppna i webbläsaren:
 #    http://127.0.0.1:8000/
-#
-# ================================================================
 from __future__ import annotations
 
 from typing import List, Tuple, Union

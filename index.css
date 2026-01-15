@@ -432,6 +432,125 @@ body.darkmode .final{
 }
 
 @media (max-width: 520px){
-  .menu ul{ width: 160px; }
-  .output-bar{ min-height: 220px; }
+
+  body{
+    font-size: 18px;
+  }
+
+  .topbar{
+    height: 72px;
+    padding: 0 14px;
+  }
+
+  .lang-selected{
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+  .lang-selected img{
+    width: 32px;
+    height: 32px;
+  }
+
+  #shade{
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 16px;
+  }
+
+  .toggle-container{
+    width: 44px;
+    height: 44px;
+  }
+  .toggle-img{
+    border-radius: 10px;
+  }
+
+  .menu ul{
+    width: 200px;
+    padding: 8px;
+  }
+  .menu ul li{
+    padding: 10px;
+  }
+  .menu ul li p{
+    font-size: 16px;
+  }
+
+  .sidebar{
+    top: 72px;                 
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 72px);
+    padding: 16px;
+    border-radius: 0;
+    z-index: 60;               
+  }
+
+  .sidebar.hidden{
+    transform: translateX(-105%);
+  }
+
+  .sidebar textarea{
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 14px;
+    resize: none;               
+    min-height: 60vh;
+  }
+
+  .main{
+    padding-top: 72px;        
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 18px;
+  }
+
+  .main img{
+    width: 260px;               
+    max-width: 88vw;
+    border-radius: 14px;
+  }
+
+  .input-box{
+    max-width: 92vw;
+    gap: 12px;
+  }
+
+  input[type="text"]{
+    width: 92vw;
+    max-width: 92vw;
+    font-size: 18px;
+    padding: 14px 12px;
+    border-radius: 14px;
+  }
+
+  #actionSelect,
+  #sendBtn,
+  .icon-btn{
+    height: 52px;
+    font-size: 18px;
+    border-radius: 14px;
+  }
+
+  #sendBtn{
+    padding: 0 18px;
+  }
+
+  #sendBtn img{
+    width: 22px;
+    height: 22px;
+  }
+
+  .output-bar{
+    max-width: 92vw;
+    min-height: 260px;
+    font-size: 16px;
+    border-radius: 14px;
+  }
+
+  .step, .final{
+    border-radius: 14px;
+  }
 }
+

@@ -17,6 +17,24 @@
   --backgroundImg: url(/images/BackgroundLightIMG.png);
 }
 
+*{ box-sizing: border-box; }
+
+html, body{
+  height: 100%;
+}
+
+body{
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--bg);
+  background-image: var(--backgroundImg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
 body.darkmode{
   --bg: #111111;
   --text: #eeeeee;
@@ -34,24 +52,6 @@ body.darkmode{
   --hover: rgba(255,255,255,0.08);
 
   --backgroundImg: url(/images/BackgroundDarkIMG.png);
-}
-
-*{ box-sizing: border-box; }
-
-html, body{
-  height: 100%;
-}
-
-body{
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: var(--bg);
-  background-image: var(--backgroundImg);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  color: var(--text);
-  overflow-x: hidden;
 }
 
 .topbar{
@@ -431,6 +431,12 @@ body.darkmode .final{
   padding-right: 26px;
 }
 
+/*
+
+  PHONE SIZE
+
+*/
+
 @media (max-width: 520px){
 
   body{
@@ -553,4 +559,3 @@ body.darkmode .final{
     border-radius: 14px;
   }
 }
-
